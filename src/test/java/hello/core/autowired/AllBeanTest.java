@@ -20,6 +20,8 @@ public class AllBeanTest {
     @Test
     void findAllBean(){
         ApplicationContext ac = new AnnotationConfigApplicationContext(AutoAppConfig.class, DiscountService.class);
+        //DiscountService만 스프링 빈으로 등록 시 DiscountPolicy는 없기 때문에 의존성주입X
+        //AutoAppConfig를 ComponentScan을 하기 때문에 RateDiscountPolicy, FixDiscountPolicy가 주입된다.
 
         DiscountService discountService = ac.getBean(DiscountService.class);
         Member member = new Member(1L, "userA", Grade.VIP);
@@ -40,12 +42,13 @@ public class AllBeanTest {
         public DiscountService(Map<String, DiscountPolicy> policyMap, List<DiscountPolicy> policies) {
             this.policyMap = policyMap;
             this.policies = policies;
-            System.out.println("policyMap = " + policyMap);
-            System.out.println("policies = " + policies);
+            System.out.println("policyMap = " + policyMap); //의존관계 주입이 되었는지 확인, key-value출력
+            System.out.println("policies = " + policies); //value출력
         }
 
         public int discount(Member member, int price, String discountCode) {
             DiscountPolicy discountPolicy = policyMap.get(discountCode);
+            //fixDiscountPolicy를 넣었으므로 return fixDiscountPolicy.discount(member, price)가된다.
             return discountPolicy.discount(member, price);
         }
     }
